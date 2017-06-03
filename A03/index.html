@@ -1,0 +1,527 @@
+<html lang="en">
+<head>
+	<title>A03</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel=stylesheet href="css/base.css"/>
+</head>
+<body>
+
+<script src="Three.js"></script>
+<script src="Detector.js"></script>
+<script src="Stats.js"></script>
+<script src="OrbitControls.js"></script>
+<script src="THREEx.KeyboardState.js"></script>
+<script src="THREEx.FullScreen.js"></script>
+<script src="THREEx.WindowResize.js"></script>
+<script src="OBJLoader.js"></script>
+
+<!-- jQuery code to display an information button and box when clicked. -->
+<script src="js/jquery-1.9.1.js"></script>
+<script src="js/jquery-ui.js"></script>
+<link rel=stylesheet href="css/jquery-ui.css" />
+<link rel=stylesheet href="css/info.css"/>
+<script src="js/info.js"></script>
+<div id="infoButton"></div>
+</div>
+<!-- ------------------------------------------------------------ -->
+
+<div id="ThreeJS" style="z-index: 1; position: absolute; left:0px; top:0px"></div>
+
+<button id= "Camera1">Camera 1</button>
+<button id= "Camera2">Camera 2</button>
+
+<script>
+/*
+	Three.js "tutorials by example"
+	Author: Lee Stemkoski
+	Date: July 2013 (three.js v59dev)
+ */
+
+	
+//////////	
+// MAIN //
+//////////
+
+// standard global variables
+var container, scene, camera, renderer, controls, stats;
+var keyboard = new THREEx.KeyboardState();
+var clock = new THREE.Clock();
+var mouseX = 0, mouseY = 0;
+var windowHalfX = window.innerWidth / 2;
+var windowHalfY = window.innerHeight / 2;
+
+var camera2, cameraAux = camera;
+
+// custom global variables
+var caixa1;
+var caixa2;
+var caixa3;
+var caixa4;
+var caixa5;
+var caixa6;
+var caixa7;
+var caixa8;
+var caixa9;
+var caixa10;
+var caixa11;
+var caixa12;
+
+// initialization
+init();
+
+// animation loop / game loop
+animate();
+
+///////////////
+// FUNCTIONS //
+///////////////
+			
+function init() 
+{
+	///////////
+	// SCENE //
+	///////////
+	scene = new THREE.Scene();
+
+	////////////
+	// CAMERA //
+	////////////
+	
+	// set the view size in pixels (custom or according to window size)
+	// var SCREEN_WIDTH = 400, SCREEN_HEIGHT = 300;
+	var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;	
+	// camera attributes
+	var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
+	// set up camera
+	camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
+	// add the camera to the scene
+	scene.add(camera);
+	// the camera defaults to position (0,0,0)
+	// 	so pull it back (z = 400) and up (y = 100) and set the angle towards the scene origin
+	camera.position.set(0,150,400);
+	camera.lookAt(scene.position);	
+	
+	////////////
+	// CAMERA //
+	////////////
+	
+	// set the view size in pixels (custom or according to window size)
+	// var SCREEN_WIDTH = 400, SCREEN_HEIGHT = 300;
+	var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;	
+	// camera attributes
+	var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
+	// set up camera
+	camera2 = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
+	// add the camera to the scene
+	scene.add(camera2);
+	// the camera defaults to position (0,0,0)
+	// 	so pull it back (z = 400) and up (y = 100) and set the angle towards the scene origin
+	camera2.position.set(400,150,0);
+	camera2.lookAt(scene.position);
+	
+	//////////////
+	// RENDERER //
+	//////////////
+	
+	// create and start the renderer; choose antialias setting.
+	if ( Detector.webgl )
+		renderer = new THREE.WebGLRenderer( {antialias:true} );
+	else
+		renderer = new THREE.CanvasRenderer(); 
+	
+	renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+	
+	//// attach div element to variable to contain the renderer
+	//container = document.getElementById( 'ThreeJS' );
+	// alternatively: to create the div at runtime, use:
+	   container = document.createElement( 'div' );
+	    document.body.appendChild( container );
+	
+	// attach renderer to the container div
+	container.appendChild( renderer.domElement );
+	
+	////////////
+	// EVENTS //
+	////////////
+
+	// automatically resize renderer
+	THREEx.WindowResize(renderer, camera);
+	////////////
+
+	// automatically resize renderer
+	THREEx.WindowResize(renderer, camera2);
+	// toggle full-screen on given key press
+	THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
+	
+	//////////////
+	// CONTROLS //
+	//////////////
+
+	// move mouse and: left   click to rotate, 
+	//                 middle click to zoom, 
+	//                 right  click to pan
+	controls = new THREE.OrbitControls( camera, renderer.domElement );
+	controls2 = new THREE.OrbitControls( camera2, renderer.domElement );
+	
+	///////////
+	// STATS //
+	///////////
+	
+	// displays current and past frames per second attained by scene
+	stats = new Stats();
+	stats.domElement.style.position = 'absolute';
+	stats.domElement.style.bottom = '0px';
+	stats.domElement.style.zIndex = 100;
+	container.appendChild( stats.domElement );
+	
+	///////////
+	// LIGHT //
+	///////////
+	
+	// create a light
+	var light = new THREE.PointLight(0xffffff);
+	light.position.set(0,250,0);
+	scene.add(light);
+	var ambientLight = new THREE.AmbientLight(0x111111);
+	// scene.add(ambientLight);
+	
+	//////////////
+	// GEOMETRY //
+	//////////////
+		
+	// most objects displayed are a "mesh":
+	//  a collection of points ("geometry") and
+	//  a set of surface parameters ("material")	
+
+	// Sphere parameters: radius, segments along width, segments along height
+	var sphereGeometry = new THREE.SphereGeometry( 50, 32, 16 ); 
+	// use a "lambert" material rather than "basic" for realistic lighting.
+	//   (don't forget to add (at least one) light!)
+	var sphereMaterial = new THREE.MeshLambertMaterial( {color: 0x8888ff} ); 
+	var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+	sphere.position.set(100, 50, -50);
+	scene.add(sphere);
+	
+	
+	// Create an array of materials to be used in a cube, one for each side
+	var caixa1MaterialArray = [];
+	// order to add materials: x+,x-,y+,y-,z+,z-
+	caixa1MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xff3333 } ) );
+	caixa1MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xff8800 } ) );
+	caixa1MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xffff33 } ) );
+	caixa1MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x33ff33 } ) );
+	caixa1MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x3333ff } ) );
+	caixa1MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x8833ff } ) );
+	var caixa1Materials = new THREE.MeshFaceMaterial( caixa1MaterialArray );
+	// Cube parameters: width (x), height (y), depth (z), 
+	//        (optional) segments along x, segments along y, segments along z
+	var caixa1Geometry = new THREE.CubeGeometry( 100, 20, 100, 1, 1, 1 );
+	// using THREE.MeshFaceMaterial() in the constructor below
+	//   causes the mesh to use the materials stored in the geometry
+	caixa1 = new THREE.Mesh( caixa1Geometry, caixa1Materials );
+	caixa1.position.set(0, 10, 0);
+	scene.add( caixa1 );
+	
+	// Create an array of materials to be used in a cube, one for each side
+	var caixa2MaterialArray = [];
+	// order to add materials: x+,x-,y+,y-,z+,z-
+	caixa2MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xff3333 } ) );
+	caixa2MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xff8800 } ) );
+	caixa2MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xffff33 } ) );
+	caixa2MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x33ff33 } ) );
+	caixa2MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x3333ff } ) );
+	caixa2MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x8833ff } ) );
+	var caixa2Materials = new THREE.MeshFaceMaterial( caixa2MaterialArray );
+	// Cube parameters: width (x), height (y), depth (z), 
+	//        (optional) segments along x, segments along y, segments along z
+	var caixa2Geometry = new THREE.CubeGeometry( 80, 20, 80, 1, 1, 1 );
+	// using THREE.MeshFaceMaterial() in the constructor below
+	//   causes the mesh to use the materials stored in the geometry
+	caixa2 = new THREE.Mesh( caixa2Geometry, caixa2Materials );
+	caixa2.position.set(0, 30, 0);
+	scene.add( caixa2 );
+	
+	// Create an array of materials to be used in a cube, one for each side
+	var caixa3MaterialArray = [];
+	// order to add materials: x+,x-,y+,y-,z+,z-
+	caixa3MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xff3333 } ) );
+	caixa3MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xff8800 } ) );
+	caixa3MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xffff33 } ) );
+	caixa3MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x33ff33 } ) );
+	caixa3MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x3333ff } ) );
+	caixa3MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x8833ff } ) );
+	var caixa3Materials = new THREE.MeshFaceMaterial( caixa3MaterialArray );
+	// Cube parameters: width (x), height (y), depth (z), 
+	//        (optional) segments along x, segments along y, segments along z
+	var caixa3Geometry = new THREE.CubeGeometry( 60, 20, 60, 1, 1, 1 );
+	// using THREE.MeshFaceMaterial() in the constructor below
+	//   causes the mesh to use the materials stored in the geometry
+	caixa3 = new THREE.Mesh( caixa3Geometry, caixa3Materials );
+	caixa3.position.set(0, 50, 0);
+	scene.add( caixa3 );
+	
+	// Create an array of materials to be used in a cube, one for each side
+	var caixa4MaterialArray = [];
+	// order to add materials: x+,x-,y+,y-,z+,z-
+	caixa4MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xff3333 } ) );
+	caixa4MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xff8800 } ) );
+	caixa4MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xffff33 } ) );
+	caixa4MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x33ff33 } ) );
+	caixa4MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x3333ff } ) );
+	caixa4MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x8833ff } ) );
+	var caixa4Materials = new THREE.MeshFaceMaterial( caixa4MaterialArray );
+	// Cube parameters: width (x), height (y), depth (z), 
+	//        (optional) segments along x, segments along y, segments along z
+	var caixa4Geometry = new THREE.CubeGeometry( 40, 20, 40, 1, 1, 1 );
+	// using THREE.MeshFaceMaterial() in the constructor below
+	//   causes the mesh to use the materials stored in the geometry
+	caixa4 = new THREE.Mesh( caixa4Geometry, caixa4Materials );
+	caixa4.position.set(0, 70, 0);
+	scene.add( caixa4 );
+	
+	
+	// Create an array of materials to be used in a cube, one for each side
+	var caixa5MaterialArray = [];
+	// order to add materials: x+,x-,y+,y-,z+,z-
+	caixa5MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xff3333 } ) );
+	caixa5MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xff8800 } ) );
+	caixa5MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xffff33 } ) );
+	caixa5MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x33ff33 } ) );
+	caixa5MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x3333ff } ) );
+	caixa5MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x8833ff } ) );
+	var caixa5Materials = new THREE.MeshFaceMaterial( caixa5MaterialArray );
+	// Cube parameters: width (x), height (y), depth (z), 
+	//        (optional) segments along x, segments along y, segments along z
+	var caixa5Geometry = new THREE.CubeGeometry( 100, 20, 100, 1, 1, 1 );
+	// using THREE.MeshFaceMaterial() in the constructor below
+	//   causes the mesh to use the materials stored in the geometry
+	caixa5 = new THREE.Mesh( caixa5Geometry, caixa5Materials );
+	caixa5.position.set(200, 10, 0);
+	scene.add( caixa5 );
+	
+	// Create an array of materials to be used in a cube, one for each side
+	var caixa6MaterialArray = [];
+	// order to add materials: x+,x-,y+,y-,z+,z-
+	caixa6MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xff3333 } ) );
+	caixa6MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xff8800 } ) );
+	caixa6MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xffff33 } ) );
+	caixa6MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x33ff33 } ) );
+	caixa6MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x3333ff } ) );
+	caixa6MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x8833ff } ) );
+	var caixa6Materials = new THREE.MeshFaceMaterial( caixa6MaterialArray );
+	// Cube parameters: width (x), height (y), depth (z), 
+	//        (optional) segments along x, segments along y, segments along z
+	var caixa6Geometry = new THREE.CubeGeometry( 80, 20, 80, 1, 1, 1 );
+	// using THREE.MeshFaceMaterial() in the constructor below
+	//   causes the mesh to use the materials stored in the geometry
+	caixa6 = new THREE.Mesh( caixa6Geometry, caixa6Materials );
+	caixa6.position.set(200, 30, 0);
+	scene.add( caixa6 );
+	
+	// Create an array of materials to be used in a cube, one for each side
+	var caixa7MaterialArray = [];
+	// order to add materials: x+,x-,y+,y-,z+,z-
+	caixa7MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xff3333 } ) );
+	caixa7MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xff8800 } ) );
+	caixa7MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xffff33 } ) );
+	caixa7MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x33ff33 } ) );
+	caixa7MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x3333ff } ) );
+	caixa7MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x8833ff } ) );
+	var caixa7Materials = new THREE.MeshFaceMaterial( caixa7MaterialArray );
+	// Cube parameters: width (x), height (y), depth (z), 
+	//        (optional) segments along x, segments along y, segments along z
+	var caixa7Geometry = new THREE.CubeGeometry( 60, 20, 60, 1, 1, 1 );
+	// using THREE.MeshFaceMaterial() in the constructor below
+	//   causes the mesh to use the materials stored in the geometry
+	caixa7 = new THREE.Mesh( caixa7Geometry, caixa7Materials );
+	caixa7.position.set(200, 50, 0);
+	scene.add( caixa7 );
+	
+	// Create an array of materials to be used in a cube, one for each side
+	var caixa8MaterialArray = [];
+	// order to add materials: x+,x-,y+,y-,z+,z-
+	caixa8MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xff3333 } ) );
+	caixa8MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xff8800 } ) );
+	caixa8MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xffff33 } ) );
+	caixa8MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x33ff33 } ) );
+	caixa8MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x3333ff } ) );
+	caixa8MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x8833ff } ) );
+	var caixa8Materials = new THREE.MeshFaceMaterial( caixa8MaterialArray );
+	// Cube parameters: width (x), height (y), depth (z), 
+	//        (optional) segments along x, segments along y, segments along z
+	var caixa8Geometry = new THREE.CubeGeometry( 40, 20, 40, 1, 1, 1 );
+	// using THREE.MeshFaceMaterial() in the constructor below
+	//   causes the mesh to use the materials stored in the geometry
+	caixa8 = new THREE.Mesh( caixa8Geometry, caixa8Materials );
+	caixa8.position.set(200, 70, 0);
+	scene.add( caixa8 );
+	
+	
+	// Create an array of materials to be used in a cube, one for each side
+	var caixa9MaterialArray = [];
+	// order to add materials: x+,x-,y+,y-,z+,z-
+	caixa9MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xff3333 } ) );
+	caixa9MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xff8800 } ) );
+	caixa9MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xffff33 } ) );
+	caixa9MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x33ff33 } ) );
+	caixa9MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x3333ff } ) );
+	caixa9MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x8833ff } ) );
+	var caixa9Materials = new THREE.MeshFaceMaterial( caixa9MaterialArray );
+	// Cube parameters: width (x), height (y), depth (z), 
+	//        (optional) segments along x, segments along y, segments along z
+	var caixa9Geometry = new THREE.CubeGeometry( 100, 20, 100, 1, 1, 1 );
+	// using THREE.MeshFaceMaterial() in the constructor below
+	//   causes the mesh to use the materials stored in the geometry
+	caixa9 = new THREE.Mesh( caixa9Geometry, caixa9Materials );
+	caixa9.position.set(0, 10, 200);
+	scene.add( caixa9 );
+	
+	// Create an array of materials to be used in a cube, one for each side
+	var caixa10MaterialArray = [];
+	// order to add materials: x+,x-,y+,y-,z+,z-
+	caixa10MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xff3333 } ) );
+	caixa10MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xff8800 } ) );
+	caixa10MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xffff33 } ) );
+	caixa10MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x33ff33 } ) );
+	caixa10MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x3333ff } ) );
+	caixa10MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x8833ff } ) );
+	var caixa10Materials = new THREE.MeshFaceMaterial( caixa10MaterialArray );
+	// Cube parameters: width (x), height (y), depth (z), 
+	//        (optional) segments along x, segments along y, segments along z
+	var caixa10Geometry = new THREE.CubeGeometry( 80, 20, 80, 1, 1, 1 );
+	// using THREE.MeshFaceMaterial() in the constructor below
+	//   causes the mesh to use the materials stored in the geometry
+	caixa10 = new THREE.Mesh( caixa10Geometry, caixa10Materials );
+	caixa10.position.set(0, 30, 200);
+	scene.add( caixa10 );
+	
+	// Create an array of materials to be used in a cube, one for each side
+	var caixa11MaterialArray = [];
+	// order to add materials: x+,x-,y+,y-,z+,z-
+	caixa11MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xff3333 } ) );
+	caixa11MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xff8800 } ) );
+	caixa11MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xffff33 } ) );
+	caixa11MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x33ff33 } ) );
+	caixa11MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x3333ff } ) );
+	caixa11MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x8833ff } ) );
+	var caixa11Materials = new THREE.MeshFaceMaterial( caixa11MaterialArray );
+	// Cube parameters: width (x), height (y), depth (z), 
+	//        (optional) segments along x, segments along y, segments along z
+	var caixa11Geometry = new THREE.CubeGeometry( 60, 20, 60, 1, 1, 1 );
+	// using THREE.MeshFaceMaterial() in the constructor below
+	//   causes the mesh to use the materials stored in the geometry
+	caixa11 = new THREE.Mesh( caixa11Geometry, caixa11Materials );
+	caixa11.position.set(0, 50, 200);
+	scene.add( caixa11 );
+	
+	// Create an array of materials to be used in a cube, one for each side
+	var caixa12MaterialArray = [];
+	// order to add materials: x+,x-,y+,y-,z+,z-
+	caixa12MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xff3333 } ) );
+	caixa12MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xff8800 } ) );
+	caixa12MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xffff33 } ) );
+	caixa12MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x33ff33 } ) );
+	caixa12MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x3333ff } ) );
+	caixa12MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x8833ff } ) );
+	var caixa12Materials = new THREE.MeshFaceMaterial( caixa12MaterialArray );
+	// Cube parameters: width (x), height (y), depth (z), 
+	//        (optional) segments along x, segments along y, segments along z
+	var caixa12Geometry = new THREE.CubeGeometry( 40, 20, 40, 1, 1, 1 );
+	// using THREE.MeshFaceMaterial() in the constructor below
+	//   causes the mesh to use the materials stored in the geometry
+	caixa12 = new THREE.Mesh( caixa12Geometry, caixa12Materials );
+	caixa12.position.set(0, 70, 200);
+	scene.add( caixa12 );
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+			
+
+	// create a set of coordinate axes to help orient user
+	//    specify length in pixels in each direction
+	var axes = new THREE.AxisHelper(100);
+	scene.add( axes );
+	
+	///////////
+	// FLOOR //
+	///////////
+	
+	// note: 4x4 checkboard pattern scaled so that each square is 25 by 25 pixels.
+	var floorTexture = new THREE.ImageUtils.loadTexture( 'ceu.jpg' );
+	floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping; 
+	floorTexture.repeat.set( 10, 10 );
+	// DoubleSide: render texture on both sides of mesh
+	var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
+	var floorGeometry = new THREE.PlaneGeometry(1000, 1000, 1, 1);
+	var floor = new THREE.Mesh(floorGeometry, floorMaterial);
+	floor.position.y = -0.5;
+	floor.rotation.x = Math.PI / 2;
+	scene.add(floor);
+	
+	/////////
+	// SKY //
+	/////////
+	
+	// recommend either a skybox or fog effect (can't use both at the same time) 
+	// without one of these, the scene's background color is determined by webpage background
+
+	//// make sure the camera's "far" value is large enough so that it will render the skyBox!
+	//var skyBoxGeometry = new THREE.CubeGeometry( 10000, 10000, 10000 );
+	//// BackSide: render faces from inside of the cube, instead of from outside (default).
+	//var skyBoxMaterial = new THREE.MeshBasicMaterial( { color: 0x9999ff, side: THREE.BackSide } );
+	//var skyBox = new THREE.Mesh( skyBoxGeometry, skyBoxMaterial );
+	//// scene.add(skyBox);
+	
+	//// fog must be added to scene before first render
+	//scene.fog = new THREE.FogExp2( 0x9999ff, 0.00025 );
+}
+
+cameraAux = camera;
+
+function animate() 
+{
+    requestAnimationFrame( animate );
+	render();		
+	update();
+}
+
+function update()
+{
+	// delta = change in time since last call (in seconds)
+	var delta = clock.getDelta(); 
+
+	// functionality provided by THREEx.KeyboardState.js
+	document.getElementById( "Camera1" ).onclick = function ()
+	{
+		cameraAux = camera;
+	};
+		
+	document.getElementById( "Camera2" ).onclick = function ()
+	{
+		cameraAux = camera2;
+	};
+		
+	controls.update();
+	controls2.update();
+	stats.update();
+}
+
+function render() 
+{	
+	renderer.render( scene, cameraAux );
+}
+
+</script>
+
+</body>
+</html>

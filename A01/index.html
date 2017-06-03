@@ -1,0 +1,154 @@
+<html>
+<head>
+			<script type="text/javascript" src="K3D.js"></script>
+     <script type="text/javascript" src="ivank.js"></script>
+     <script type="text/javascript">
+			 
+			 var m;
+			 var m2;
+			 var stage;
+			 var s;
+			 var s2;
+			 var vts;
+			 var uvt;
+			 var ind;
+			 var vts2;
+			 var uvt2;
+			 var ind2;
+			 var data3;
+			 var velRotYS2 = 0;
+			 var velYSS2 = 0;
+			 var yInicialS;
+			 var yInicialS2;
+          
+          function Start()
+          {
+              K3D.load("female-croupier-2013-03-26.obj", loaded);		// loading file ...
+          }
+          
+          function loaded(data)
+          {
+							data3 = data;
+							K3D.load ("for ele.obj", loaded2)
+          }
+          
+         function loaded2 (data2)
+         {
+					 m = K3D.parse.fromOBJ(data3);	// done !
+					 console.log(m);
+					 m2 = K3D.parse.fromOBJ(data2);	// done !
+					 console.log(m2);
+						 
+					 stage = new Stage("c");  
+					 s = new Sprite(); 
+					 stage.addChild(s);
+					 s2 = new Sprite(); 
+					 stage.addChild(s2);
+				 
+					 s.x = stage.stageWidth/2; 
+					 s.y = stage.stageHeight/2 + 150;
+					 s.z = 300;
+					 s.scaleX = s.scaleY = s.scaleZ = 300;
+						 
+					 s2.x = stage.stageWidth/2; 
+					 s2.y = stage.stageHeight/2 - 50;
+					 s2.z = 300;
+					 s2.scaleX = s2.scaleY = s2.scaleZ = 5;
+					 
+					 yInicialS = stage.stageHeight/2 + 150;
+					 yInicialS2 = stage.stageHeight/2 - 50;
+						 
+						 //	I need to index vertices and UVT with the same indices... 0, 1, 2, ...
+					 vts = K3D.edit.unwrap(m.i_verts, m.c_verts, 3);
+					 vts2 = K3D.edit.unwrap(m2.i_verts, m2.c_verts, 3);
+						 
+						 //  In my engine, Y goes down, but in my model, Y goes up
+					 K3D.edit.transform(vts, K3D.mat.scale(1,-1,1));	
+					 K3D.edit.transform(vts2, K3D.mat.scale(1,-1,1));	
+					 uvt = K3D.edit.unwrap(m.i_uvt  , m.c_uvt  , 2);
+					 uvt2 = K3D.edit.unwrap(m2.i_uvt  , m2.c_uvt  , 2);
+					 ind = [];
+					 ind2 = [];
+					 for(var i=0; i<m.i_verts.length; i++) ind.push(i);
+					 for(var i=0; i<m2.i_verts.length; i++) ind2.push(i);
+						 
+					 s.graphics.beginBitmapFill(new BitmapData("female-croupier-2013-03-26.jpg"));
+					 s.graphics.drawTriangles3D(vts, ind, uvt);
+					 s2.graphics.beginBitmapFill(new BitmapData("pervosuke.jpg"));
+					 s2.graphics.drawTriangles3D(vts2, ind2, uvt2);
+					 
+					 s.rotationY += 180;
+					 
+					 stage.addEventListener(Event.ENTER_FRAME, 
+									function(e) 
+									{ 
+										s2.rotationY += velRotYS2;
+										s.y -= velYSS2;
+										s2.y -= velYSS2;
+										
+										if (velRotYS2 >= 20)
+										{
+											velYSS2 = velRotYS2 / 20;
+										}
+										else
+										{
+											if (s.y < yInicialS)
+											{
+												velYSS2 = -5;
+											}
+											else
+											{
+												velYSS2 = 0;
+											}
+										}
+										
+										
+											
+										} );
+									
+					 document.getElementById( "ScaleUp" ).onclick = function ()
+					 {
+					   s.scaleX += 10;
+						 s.scaleY += 10;
+						 s.scaleZ += 10;
+					 };
+							
+					 document.getElementById( "ScaleDown" ).onclick = function ()
+					 {
+						 s.scaleX -= 10;
+						 s.scaleY -= 10;
+						 s.scaleZ -= 10;
+					 };
+							
+					 document.getElementById( "StageZ100" ).onclick = function ()
+					 {
+						 stage.z += 100;
+					 };
+							
+					 document.getElementById( "StageZ-100" ).onclick = function ()
+					 {
+						 stage.z -= 100;
+					 };
+					 
+					 document.getElementById( "RotacionaYArma2" ).onclick = function ()
+					 {
+						 velRotYS2 += 2;
+					 };
+					 
+					 document.getElementById( "RotacionaYArma-2" ).onclick = function ()
+					 {
+						 velRotYS2 -= 2;
+					 };
+				 }
+     </script>
+</head>
+<body onload="Start();">
+	<button id= "ScaleUp">Scale Up</button>
+	<button id= "ScaleDown">Scale Down</button>
+	<button id= "StageZ100">Stage Z += 100</button>
+	<button id= "StageZ-100">Stage Z -= 100</button>
+	<button id= "RotacionaYArma2">RotacionaY arma + 2</button>
+	<button id= "RotacionaYArma-2">RotacionaY arma - 2</button>
+	<canvas id="c"></canvas>
+</body>
+</html>
