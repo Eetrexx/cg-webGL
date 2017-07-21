@@ -1,0 +1,28 @@
+Matheus Saraiva Leão Andrade - 620033
+José Gabriel de Oliveira Santana - 620459
+
+1. Introdução
+
+O projeto consiste em uma animação interativa simples implementada em WebGL, javascript e HTML. A animação é composta de formas básicas, algumas das quais possuem movimentos específicos (translação e/ou rotação) e cores simples/texturas aplicadas.
+
+O grupo usou como base o código de uma cena criada pelo desenvolvedor Lee Stemkoski, que se encontra na página http://stemkoski.github.io/Three.js/HelloWorld.html.
+
+2. Descrição da cena
+
+A animação contém uma simulação do movimento de um pêndulo cônico e o movimento de um cubo ao longo de curvas de Bézier. Os objetos da cena que são renderizados são um plano (o "piso"), duas esferas (o pêndulo e seu apoio), um cubo e dois cilindros (o fio do pêndulo e a barra horizontal por onde pode correr o apoio do pêndulo).
+
+
+2.1 Interações com o usuário
+
+O usuário pode interagir com a animação de três formas: movimentar o mouse enquanto clica a tela para mover a câmera, usar o scroll do mouse para dar zoom na cena ou clicar nos botões da tela para trocar a câmera ou habilitar/desabilitar o movimento do apoio do pêndulo ao longo da barra horizontal.
+
+
+2.2 Animações propostas
+
+Os objetos da cena descrevem os seguintes movimentos: rotação e translação do pêndulo, rotação e translação do fio (função da posição do pêndulo em relação aos eixos X e Z), translação do apoio e do resto do pêndulo ao longo do eixo Z (que pode ser habilitada/desabilitada através de um botão da tela) e movimento do cubo ao longo de curvas de Bézier.
+
+3. Desenvolvimento do projeto
+
+3.1 Divisão de tarefas
+
+Não houve divisão formal de tarefas entre os membros do grupo, e todos compartilharam a responsabilidade de desenvolver todos os aspectos da cena.

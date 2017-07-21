@@ -1,0 +1,433 @@
+<html lang="en">
+<head>
+	<title>Projeto Final</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel=stylesheet href="css/base.css"/>
+</head>
+<body>
+
+<script src="three.min.js"></script>
+<script src="Detector.js"></script>
+<script src="Stats.js"></script>
+<script src="OrbitControls.js"></script>
+<script src="THREEx.KeyboardState.js"></script>
+<script src="THREEx.FullScreen.js"></script>
+<script src="THREEx.WindowResize.js"></script>
+<script src="OBJLoader.js"></script>
+<script src="MTLLoader.js"></script>
+
+<!-- jQuery code to display an information button and box when clicked. -->
+<script src="js/jquery-1.9.1.js"></script>
+<script src="js/jquery-ui.js"></script>
+<link rel=stylesheet href="css/jquery-ui.css" />
+<link rel=stylesheet href="css/info.css"/>
+<script src="js/info.js"></script>
+<div id="infoButton"></div>
+</div>
+<!-- ------------------------------------------------------------ -->
+
+<div id="ThreeJS" style="z-index: 1; position: absolute; left:0px; top:0px"></div>
+
+<button id= "Camera1">Camera 1</button>
+<button id= "Camera2">Camera 2</button>
+<button id= "MovimentoApoio">Ativa/desativa movimento do apoio</button>
+
+<script>
+
+// standard global variables
+var container, scene, camera, renderer, controls, stats;
+var keyboard = new THREEx.KeyboardState();
+var clock = new THREE.Clock();
+var mouseX = 0, mouseY = 0;
+var windowHalfX = window.innerWidth / 2;
+var windowHalfY = window.innerHeight / 2;
+
+var camera2, cameraAux = camera;
+
+// custom global variables
+var sphere;
+var cube;
+var fio;
+var apoio;
+var fio2;
+
+var t1 = 0;
+var t2 = 0;
+var t3 = 1;
+var t4 = 0;
+var t5 = 1;
+var t6 = 0;
+
+var curvaBezier = new THREE.CubicBezierCurve3(
+		new THREE.Vector3(-300, 50, 0),
+		new THREE.Vector3(-250, 800, 0),
+		new THREE.Vector3(250, 800, 0),
+		new THREE.Vector3(300, 50, 0)
+);
+var curvaBezier2 = new THREE.CubicBezierCurve3(
+		new THREE.Vector3(300, 50, 0),
+		new THREE.Vector3(250, 800, 0),
+		new THREE.Vector3(-250, 800, 0),
+		new THREE.Vector3(-300, 50, 0)
+);
+var contador = 0;
+		
+
+// initialization
+init();
+
+// animation loop / game loop
+animate();
+
+///////////////
+// FUNCTIONS //
+///////////////
+			
+function init() 
+{
+	///////////
+	// SCENE //
+	///////////
+	scene = new THREE.Scene();
+
+	////////////
+	// CAMERA //
+	////////////
+	
+	var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;	
+	var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
+	camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
+	scene.add(camera);
+	camera.position.set(-400,1000,-400);
+	camera.lookAt(scene.position);	
+	
+	////////////
+	// CAMERA //
+	////////////
+	
+	var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;	
+	var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
+	camera2 = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
+	scene.add(camera2);
+	camera2.position.set(400,1000,400);
+	camera2.lookAt(scene.position);
+	
+	//////////////
+	// RENDERER //
+	//////////////
+	
+	
+	if ( Detector.webgl )
+		renderer = new THREE.WebGLRenderer( {antialias:true} );
+	else
+		renderer = new THREE.CanvasRenderer(); 
+	
+	renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+	
+	
+	container = document.createElement( 'div' );
+	document.body.appendChild( container );
+
+
+	container.appendChild( renderer.domElement );
+	
+	////////////
+	// EVENTS //
+	////////////
+
+
+	THREEx.WindowResize(renderer, camera);
+
+
+
+	THREEx.WindowResize(renderer, camera2);
+
+	THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
+	
+	//////////////
+	// CONTROLS //
+	//////////////
+
+	controls = new THREE.OrbitControls( camera, renderer.domElement );
+	controls2 = new THREE.OrbitControls( camera2, renderer.domElement );
+	
+	///////////
+	// STATS //
+	///////////
+	
+	stats = new Stats();
+	stats.domElement.style.position = 'absolute';
+	stats.domElement.style.bottom = '0px';
+	stats.domElement.style.zIndex = 100;
+	container.appendChild( stats.domElement );
+	
+	///////////
+	// LIGHT //
+	///////////
+	
+	var light = new THREE.PointLight(0xffffff);
+	light.position.set(0,250,0);
+	scene.add(light);
+	var ambientLight = new THREE.AmbientLight(0x111111);
+	scene.add(ambientLight);
+	
+	//////////////
+	// GEOMETRY //
+	//////////////
+		
+	var sphereTexture = new THREE.TextureLoader().load('laranja.png');
+	var sphereGeo = new THREE.SphereGeometry(50, 32, 16);
+	var sphereMat = new THREE.MeshBasicMaterial(/*{color: 0x8888ff}*/{map: sphereTexture});
+	sphere = new THREE.Mesh(sphereGeo, sphereMat);
+	sphere.position.set(100, 50, 100); //100 50 -50
+	scene.add(sphere);
+	
+	
+	var cubeMaterialArray = [];
+	cubeMaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xff3333 } ) );
+	cubeMaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xff8800 } ) );
+	cubeMaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xffff33 } ) );
+	cubeMaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x33ff33 } ) );
+	cubeMaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x3333ff } ) );
+	cubeMaterialArray.push( new THREE.MeshBasicMaterial( { color: 0x8833ff } ) );
+	var cubeMaterials = new THREE.MeshFaceMaterial( cubeMaterialArray );
+	var cubeTexture = new THREE.TextureLoader().load('companioncube.png');
+	var cubeMat = new THREE.MeshBasicMaterial(/*cubeMaterialArray*/{map: cubeTexture});
+	var cubeGeo = new THREE.BoxGeometry(100, 100, 100, 1, 1, 1);
+	cube = new THREE.Mesh(cubeGeo, cubeMat);
+	cube.position.set(-300, 50, 0);
+	scene.add( cube );
+	
+	var fioMaterialArray = [];
+	fioMaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xcccccc } ) );
+	fioMaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xcccccc } ) );
+	fioMaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xcccccc } ) );
+	fioMaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xcccccc } ) );
+	fioMaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xcccccc } ) );
+	fioMaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xcccccc } ) );
+	var fioMaterials = new THREE.MeshFaceMaterial( fioMaterialArray );
+	var fioGeometry = new THREE.CylinderGeometry( 1, 1, 300, 32 );
+	fio = new THREE.Mesh(fioGeometry, fioMaterials);
+	fio.position.set(0, 245, 0);
+	scene.add( fio );
+	
+	var apoioGeo = new THREE.SphereGeometry(15, 32, 16);
+	var apoioMat = new THREE.MeshBasicMaterial({color: 0x777777});
+	apoio = new THREE.Mesh(apoioGeo, apoioMat);
+	apoio.position.set(0, 400, 0);
+	scene.add(apoio);
+	
+	var fio2MaterialArray = [];
+	fio2MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xcc0000 } ) );
+	fio2MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xcc0000 } ) );
+	fio2MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xcc0000 } ) );
+	fio2MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xcc0000 } ) );
+	fio2MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xcc0000 } ) );
+	fio2MaterialArray.push( new THREE.MeshBasicMaterial( { color: 0xcc0000 } ) );
+	var fio2Materials = new THREE.MeshFaceMaterial( fio2MaterialArray );
+	var fio2Geometry = new THREE.CylinderGeometry(1, 1, 980, 32);
+	fio2 = new THREE.Mesh(fio2Geometry, fio2Materials);
+	fio2.position.set(0, 400, 0);
+	fio2.rotation.set(Math.PI / 2, 0, 0);
+	scene.add( fio2 );
+	
+	
+	///////////
+	// FLOOR //
+	///////////
+	
+	// note: 4x4 checkboard pattern scaled so that each square is 25 by 25 pixels.
+	var floorTexture = new THREE.ImageUtils.loadTexture( 'CarvedStone.png' );
+	floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping; 
+	floorTexture.repeat.set( 10, 10 );
+	// DoubleSide: render texture on both sides of mesh
+	var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
+	var floorGeometry = new THREE.PlaneGeometry(1000, 1000, 1, 1);
+	var floor = new THREE.Mesh(floorGeometry, floorMaterial);
+	floor.position.y = -0.5;
+	floor.rotation.x = Math.PI / 2;
+	scene.add(floor);
+	
+	/////////
+	// SKY //
+	/////////
+	
+
+	var skyBoxGeometry = new THREE.CubeGeometry( 10000, 10000, 10000 );
+	var skyBoxMaterial = new THREE.MeshBasicMaterial( { color: 0x8888ee, side: THREE.BackSide } );
+	var skyBox = new THREE.Mesh( skyBoxGeometry, skyBoxMaterial );
+	scene.add(skyBox);
+
+
+	///////////
+	// JOKER //
+	///////////
+
+	var mtlL = new THREE.MTLLoader();
+				mtlL.setPath('joker/');						
+				mtlL.load('joker.mtl', function( materials ){
+					materials.preload();
+				    loader = new THREE.OBJLoader();
+				    loader.setMaterials(materials);
+			        loader.setPath('joker/');
+			        loader.load('joker.obj', function ( object ) {
+				    	object.castShadow = false;
+				    	object.receiveShadow = false;
+				    	object.name = 'joker';				        			
+	        			object.scale.set(1.1,1.1,1.1);
+	        			object.position.set(300,0,300);			        		
+	        			object.rotation.set(0,0,0);
+        				
+        				//shadow
+			        	object.traverse( function ( child ) {
+							if ( child instanceof THREE.Mesh ) {
+							    child.castShadow = true;
+							    child.receiveShadow = true;
+							    }
+							} );
+			        		scene.add(object);			        				
+			        	});	
+			    });		
+
+	////////////
+	// BATMAN //
+	////////////
+
+		        	var mtl2 = new THREE.MTLLoader();
+				mtl2.setBaseUrl
+				mtl2.setPath('Batman/Texture/');						
+				mtl2.load('Batman.mtl', function( materials ){
+					materials.preload();
+				    var obJloader = new THREE.OBJLoader();
+				    obJloader.setMaterials(materials);
+			        obJloader.setPath('Batman/');
+			        obJloader.load('Batman.obj', function ( object ) {
+				    	object.castShadow = true;
+				    	object.receiveShadow = true;
+				    	object.name = 'batman';				        			
+	        			object.scale.set(1.1,1.1,1.1);
+	        			object.position.set(-300,0,300);			        		
+	        			object.rotation.set(0,0,0);
+        				
+        				//shadow
+			        	object.traverse( function ( child ) {
+							if ( child instanceof THREE.Mesh ) {
+							    child.castShadow = true;
+							    child.receiveShadow = true;
+							    }
+							} );
+			        		scene.add(object);			        				
+			        	});	
+			    });		
+	
+}
+
+cameraAux = camera;
+t3 += 0.01;
+
+function animate() 
+{
+	requestAnimationFrame( animate );
+  
+  
+  // movimento do pêndulo
+  t1 += 0.05;
+  t2 += 0.05;
+  
+  if (apoio.position.z >= 480)
+  {
+		t3 = -1
+	}
+	else
+	{
+		if (apoio.position.z <= -480)
+		{
+			t3 = 1;
+		}
+	}
+	
+	t4 = t6 * 8 * t3 * ((500 - apoio.position.z) / 500);
+	
+	
+	fio.position.x = (sphere.position.x - apoio.position.x) / 2;
+	fio.position.z = apoio.position.z + (sphere.position.z - apoio.position.z) / 2;
+	
+	fio.rotation.x = - (sphere.position.z - apoio.position.z) / (apoio.position.y - sphere.position.y );
+	fio.rotation.z = (sphere.position.x - apoio.position.x) / (apoio.position.y - sphere.position.y );
+	
+	sphere.rotation.x = - (sphere.position.z - apoio.position.z) / (apoio.position.y - sphere.position.y);
+	sphere.rotation.z = (sphere.position.x - apoio.position.x) / (apoio.position.y - sphere.position.y);
+	
+	sphere.position.x = 100*Math.cos(t1) + 0
+  sphere.position.z = apoio.position.z + 100*Math.sin(t2);
+  
+  apoio.position.z += t4;
+  
+  // movimento do cubo
+  if(contador <= 1)
+  {
+		if (t5 == 1)
+			cube.position.copy(curvaBezier.getPointAt(contador));
+		else
+			cube.position.copy(curvaBezier2.getPointAt(contador));
+			
+		contador += 0.005;
+	}
+	else
+	{
+		if (t5 == 1)
+			t5 = -1;
+		else
+			t5 = 1;
+			
+		contador = 0;
+  }
+  
+  
+    
+	render();
+	update();
+}
+
+function update()
+{
+	var delta = clock.getDelta(); 
+
+	// functionality provided by THREEx.KeyboardState.js
+	document.getElementById( "Camera1" ).onclick = function ()
+	{
+		cameraAux = camera;
+	};
+		
+	document.getElementById( "Camera2" ).onclick = function ()
+	{
+		cameraAux = camera2;
+	};
+		
+	document.getElementById( "MovimentoApoio" ).onclick = function ()
+	{
+		if (t6 == 1)
+		{
+			t6 = 0;
+		}
+		else
+		{
+			t6 = 1;
+		}
+	};
+		
+	controls.update();
+	controls2.update();
+	stats.update();
+}
+
+function render() 
+{	
+	renderer.render( scene, cameraAux );
+}
+
+</script>
+
+</body>
+</html>
