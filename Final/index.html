@@ -33,6 +33,8 @@
 <button id= "Camera2">Camera 2</button>
 <button id= "MovimentoApoio">Ativa/desativa movimento do apoio</button>
 
+
+
 <script>
 
 // standard global variables
@@ -295,8 +297,9 @@ function init()
 	////////////
 
 		        	var mtl2 = new THREE.MTLLoader();
-				mtl2.setBaseUrl
-				mtl2.setPath('Batman/Texture/');						
+				
+				mtl2.setPath('Batman/Texture/');
+				mtl2.setTexturePath('Batman/Texture/')						
 				mtl2.load('Batman.mtl', function( materials ){
 					materials.preload();
 				    var obJloader = new THREE.OBJLoader();
@@ -319,8 +322,42 @@ function init()
 							} );
 			        		scene.add(object);			        				
 			        	});	
-			    });		
-	
+			    });	
+				//mtl2.setMaterialOptions(normalizeRGB);
+
+		
+	////////////
+	// MULHER //
+	////////////
+
+	var mtl3 = new THREE.MTLLoader();
+				
+				mtl3.setPath('Female/');						
+				mtl3.load('female-croupier-2013-03-26.mtl', function( materials ){
+					materials.preload();
+				    loader = new THREE.OBJLoader();
+				    loader.setMaterials(materials);
+			        loader.setPath('Female/');
+			        loader.load('female-croupier-2013-03-26.obj', function ( object ) {
+				    	object.castShadow = true;
+				    	object.receiveShadow = true;
+				    	object.name = 'mulher';				        			
+	        			object.scale.set(200,200,200);
+	        			object.position.set(300,185,-300);			        		
+	        			object.rotation.set(0,0,0);
+        				
+        				//shadow
+			        	object.traverse( function ( child ) {
+							if ( child instanceof THREE.Mesh ) {
+							    child.castShadow = true;
+							    child.receiveShadow = true;
+							    }
+							} );
+			        		scene.add(object);			        				
+			        	});	
+			    });	
+
+		
 }
 
 cameraAux = camera;
